@@ -37,45 +37,23 @@ func (l Lexer) String() string {
 		}
 
 		var end string
-		if l.readPosition >= len(l.input)-winSz {
+		if l.readPosition > len(s)-winSz {
 			end = s[l.readPosition:]
 		} else {
 			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
 		}
 
 		slidingWindow = fmt.Sprintf("%s⁅%s⁆%s",
-			start, string(l.char), end)
+			start, string(s[l.charIndex]), end)
 	}
 
 	return fmt.Sprintf(
-		"char=%q charIndex=%d readPosistion=%d input=\"%s\"",
+		"char=%-4q charIndex=%-4d readPosistion=%-4d input=\"%s\"",
 		l.char, l.charIndex, l.readPosition, slidingWindow)
 }
 
-func (l Lexer) slidingWindow() string {
-	s := l.input
-	s = strings.ReplaceAll(s, "\n", " ")
-	winSz := 10
-
-	var start string
-	if l.charIndex < winSz {
-		start = s[:l.charIndex]
-	} else {
-		start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
-	}
-
-	var end string
-	if l.readPosition >= len(l.input)-winSz {
-		end = s[l.readPosition:]
-	} else {
-		end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
-	}
-
-	return fmt.Sprintf("%s⁅%s⁆%s", start, string(l.char), end)
-}
-
 func (l *Lexer) readChar() {
-	fmt.Printf("lexer enter -> %s\n", l)
+	// fmt.Printf("lexer enter -> %s\n", l)
 	atStrEnd := l.readPosition >= len(l.input)
 	if atStrEnd {
 		l.char = 0 // ASCII for "NUL"
@@ -111,7 +89,7 @@ func (l *Lexer) NextToken() token.Token {
 		toke.Literal = ""
 		toke.Type = token.EOF
 	}
-	fmt.Printf("%s\n", toke)
+	// fmt.Printf("%s\n", toke)
 
 	l.readChar()
 	return toke

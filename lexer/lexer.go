@@ -27,19 +27,20 @@ func (l Lexer) String() string {
 	{
 		s := l.input
 		s = strings.ReplaceAll(s, "\n", " ")
+		winSz := 10
 
 		var start string
-		if l.charIndex < 6 {
+		if l.charIndex < winSz {
 			start = s[:l.charIndex]
 		} else {
-			start = fmt.Sprintf("…%s", s[l.charIndex-6:l.charIndex])
+			start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
 		}
 
 		var end string
-		if l.readPosition >= len(l.input)-6 {
+		if l.readPosition >= len(l.input)-winSz {
 			end = s[l.readPosition:]
 		} else {
-			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+6])
+			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
 		}
 
 		slidingWindow = fmt.Sprintf("%s⁅%s⁆%s",
@@ -49,6 +50,28 @@ func (l Lexer) String() string {
 	return fmt.Sprintf(
 		"char=%q charIndex=%d readPosistion=%d input=\"%s\"",
 		l.char, l.charIndex, l.readPosition, slidingWindow)
+}
+
+func (l Lexer) slidingWindow() string {
+	s := l.input
+	s = strings.ReplaceAll(s, "\n", " ")
+	winSz := 10
+
+	var start string
+	if l.charIndex < winSz {
+		start = s[:l.charIndex]
+	} else {
+		start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
+	}
+
+	var end string
+	if l.readPosition >= len(l.input)-winSz {
+		end = s[l.readPosition:]
+	} else {
+		end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
+	}
+
+	return fmt.Sprintf("%s⁅%s⁆%s", start, string(l.char), end)
 }
 
 func (l *Lexer) readChar() {

@@ -1,9 +1,13 @@
 package lexer
 
-import "monkey/token"
+import (
+	"fmt"
+	"monkey/token"
+	"strings"
+)
 
 type Lexer struct {
-	input        string // the string to interate over
+	input        string // the string to iterate over
 	char         byte   // the char under iteration
 	charIndex    int    // index of char
 	readPosition int    // charIndex + 1
@@ -11,11 +15,51 @@ type Lexer struct {
 
 func New(input string) *Lexer {
 	l := &Lexer{input: input}
+	fmt.Printf("Initializing Lexer: %s\n", l)
 	l.readChar() // initialize
 	return l
 }
 
+func (l Lexer) String() string {
+	// input is unweidly to print, so create a sliding window
+	// with a nice "…e's the ⁅c⁆hara…" format
+	var slidingWindow string
+	{
+		s := l.input
+		s = strings.ReplaceAll(s, "\n", " ")
+
+		var i int
+		if l.charIndex == 0 {
+			i = 0
+		} else {
+			i = l.charIndex
+		}
+
+		var start string
+		if i < 6 {
+			start = s[:i]
+		} else {
+			start = fmt.Sprintf("…%s", s[i-6:i])
+		}
+
+		var end string
+		if l.readPosition >= len(l.input)-6 {
+			end = s[l.readPosition:]
+		} else {
+			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+6])
+		}
+
+		slidingWindow = fmt.Sprintf("%s⁅%s⁆%s",
+			start, string(l.char), end)
+	}
+
+	return fmt.Sprintf(
+		"char=%q charIndex=%d readPosistion=%d input=\"%s\"",
+		l.char, l.charIndex, l.readPosition, slidingWindow)
+}
+
 func (l *Lexer) readChar() {
+	fmt.Printf("lexer enter -> %s\n", l)
 	atStrEnd := l.readPosition >= len(l.input)
 	if atStrEnd {
 		l.char = 0 // ASCII for "NUL"
@@ -24,6 +68,7 @@ func (l *Lexer) readChar() {
 	}
 	l.charIndex = l.readPosition
 	l.readPosition += 1
+	fmt.Printf("lexer exit -> %s\n", l)
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -50,11 +95,12 @@ func (l *Lexer) NextToken() token.Token {
 		toke.Literal = ""
 		toke.Type = token.EOF
 	}
+	fmt.Printf("%s\n", toke)
 
 	l.readChar()
 	return toke
 }
 
-func newToken(tt token.TokenType, b byte) token.Token {
-	return token.Token{Type: tt, Literal: string(b)}
+func newToken(tt token.TokenType, char byte) token.Token {
+	return token.Token{Type: tt, Literal: string(char)}
 }

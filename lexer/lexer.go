@@ -28,18 +28,11 @@ func (l Lexer) String() string {
 		s := l.input
 		s = strings.ReplaceAll(s, "\n", " ")
 
-		var i int
-		if l.charIndex == 0 {
-			i = 0
-		} else {
-			i = l.charIndex
-		}
-
 		var start string
-		if i < 6 {
-			start = s[:i]
+		if l.charIndex < 6 {
+			start = s[:l.charIndex]
 		} else {
-			start = fmt.Sprintf("…%s", s[i-6:i])
+			start = fmt.Sprintf("…%s", s[l.charIndex-6:l.charIndex])
 		}
 
 		var end string

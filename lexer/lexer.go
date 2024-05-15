@@ -20,7 +20,7 @@ func New(input string) *Lexer {
 	return l
 }
 
-func (l Lexer) String() string {
+func (l *Lexer) String() string {
 	// input is unweidly to print, so create a sliding window
 	// with a nice "…e's the [c]hara…" format
 	var slidingWindow string
@@ -80,13 +80,20 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.char {
 	case '=':
-		t = newToken(token.ASSIGN, l.char)
+		if l.peekChar() == '=' {
+			ch := l.char
+			l.readChar()
+			literal := string(ch) + string(l.char)
+			t = token.Token{Type: token.EQ, Literal: literal}
+		} else {
+			t = newToken(token.ASSIGN, l.char)
+		}
 	case ';':
 		t = newToken(token.SEMICOLON, l.char)
 	case '(':
-		t = newToken(token.LBRACE, l.char)
-	case '{':
 		t = newToken(token.LPAREN, l.char)
+	case '{':
+		t = newToken(token.LBRACE, l.char)
 	case ')':
 		t = newToken(token.RPAREN, l.char)
 	case '}':
@@ -95,6 +102,25 @@ func (l *Lexer) NextToken() token.Token {
 		t = newToken(token.PLUS, l.char)
 	case ',':
 		t = newToken(token.COMMA, l.char)
+	case '*':
+		t = newToken(token.ASTERISK, l.char)
+	case '!':
+		if l.peekChar() == '=' {
+			ch := l.char
+			l.readChar()
+			literal := string(ch) + string(l.char)
+			t = token.Token{Type: token.NOT_EQ, Literal: literal}
+		} else {
+			t = newToken(token.BANG, l.char)
+		}
+	case '/':
+		t = newToken(token.SLASH, l.char)
+	case '<':
+		t = newToken(token.LT, l.char)
+	case '>':
+		t = newToken(token.GT, l.char)
+	case '-':
+		t = newToken(token.MINUS, l.char)
 	case 0:
 		t.Literal = ""
 		t.Type = token.EOF
@@ -117,20 +143,33 @@ func (l *Lexer) NextToken() token.Token {
 	return t
 }
 
+// readIdentifier advances the lexer till the end of a letter sequence,
+// and then returns the letter sequence.
 func (l *Lexer) readIdentifier() string {
-	pos := l.readPos
+	idStart := l.charPos
 	for isLetter(l.char) {
 		l.readChar()
 	}
-	return l.input[pos:l.readPos]
+	return l.input[idStart:l.charPos]
 }
 
+// readNumber the lexer till the end of a digit sequence,
+// and then returns the digit sequence.
 func (l *Lexer) readNumber() string {
-	pos := l.readPos
+	numStart := l.charPos
 	for isDigit(l.char) {
 		l.readChar()
 	}
-	return l.input[pos:l.readPos]
+	return l.input[numStart:l.charPos]
+}
+
+func (l *Lexer) peekChar() byte {
+	atEnd := l.readPos >= len(l.input)
+	if atEnd {
+		return 0
+	} else {
+		return l.input[l.readPos]
+	}
 }
 
 func (l *Lexer) skipWhitespace() {
@@ -153,5 +192,5 @@ func isLetter(char byte) bool {
 }
 
 func isDigit(char byte) bool {
-	return '0' <= char && char >= '9'
+	return '0' <= char && char <= '9'
 }

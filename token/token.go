@@ -10,7 +10,7 @@ type Token struct {
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("token.Type=%s token.Literal=%s", t.Type, t.Literal)
+	return fmt.Sprintf("token.Type=%q token.Literal=%q", t.Type, t.Literal)
 }
 
 const (
@@ -56,8 +56,13 @@ const (
 )
 
 var keywords = map[string]TokenType{
-	"fn":  FUNCTION,
-	"let": LET,
+	"fn":     FUNCTION,
+	"let":    LET,
+	"true":   TRUE,
+	"false":  FALSE,
+	"if":     IF,
+	"else":   ELSE,
+	"return": RETURN,
 }
 
 func LookupIdentifier(id string) TokenType {

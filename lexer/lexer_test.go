@@ -55,12 +55,12 @@ let result = add(five, ten);
 	// not great but whatever i'm a noob at Go
 	t3 := New("hey how it is going?\n what's up?")
 	for i := 0; i < len(t3.input)-1; i++ {
-		currentToken := t3.NextToken()
-		t.Log(currentToken)
+		_ = t3.NextToken()
+		t.Log(t3)
 	}
 	t4 := New("hey\nsup")
 	for i := 0; i < len(t4.input)-1; i++ {
-		currentToken := t4.NextToken()
-		t.Log(currentToken)
+		_ = t4.NextToken()
+		t.Log(t4)
 	}
 }

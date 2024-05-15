@@ -16,7 +16,7 @@ func (t Token) String() string {
 const (
 	ILLEGAL   = "ILLEGAL"
 	EOF       = "EOF"
-	IDENT     = "IDENT"
+	IDENT     = "IDENT" // Any user defined identifier.
 	INT       = "INT"
 	ASSIGN    = "="
 	PLUS      = "+"
@@ -29,3 +29,15 @@ const (
 	FUNCTION  = "FUNCTION"
 	LET       = "LET"
 )
+
+var keywords = map[string]TokenType{
+	"fn":  FUNCTION,
+	"let": LET,
+}
+
+func lookupIdentifier(id string) TokenType {
+	if token, ok := keywords[id]; ok {
+		return token
+	}
+	return IDENT
+}

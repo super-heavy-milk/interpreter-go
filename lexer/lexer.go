@@ -74,35 +74,57 @@ func (l *Lexer) readChar() {
 }
 
 func (l *Lexer) NextToken() token.Token {
-	var toke token.Token
+	var t token.Token
 
 	switch l.char {
 	case '=':
-		toke = newToken(token.ASSIGN, l.char)
+		t = newToken(token.ASSIGN, l.char)
 	case ';':
-		toke = newToken(token.SEMICOLON, l.char)
+		t = newToken(token.SEMICOLON, l.char)
 	case '(':
-		toke = newToken(token.LBRACE, l.char)
+		t = newToken(token.LBRACE, l.char)
 	case '{':
-		toke = newToken(token.LPAREN, l.char)
+		t = newToken(token.LPAREN, l.char)
 	case ')':
-		toke = newToken(token.RPAREN, l.char)
+		t = newToken(token.RPAREN, l.char)
 	case '}':
-		toke = newToken(token.RBRACE, l.char)
+		t = newToken(token.RBRACE, l.char)
 	case '+':
-		toke = newToken(token.PLUS, l.char)
+		t = newToken(token.PLUS, l.char)
 	case ',':
-		toke = newToken(token.COMMA, l.char)
+		t = newToken(token.COMMA, l.char)
 	case 0:
-		toke.Literal = ""
-		toke.Type = token.EOF
+		t.Literal = ""
+		t.Type = token.EOF
+	default:
+		if isLetter(l.char) {
+			t.Literal = l.readIdentifier()
+			t.Type = token.LookupIdentifier(t.Literal)
+			return t
+		} else {
+			t = newToken(token.ILLEGAL, l.char)
+		}
 	}
 	// fmt.Printf("%s\n", toke)
 
 	l.readChar()
-	return toke
+	return t
+}
+
+func (l *Lexer) readIdentifier() string {
+	pos := l.readPos
+	for isLetter(l.char) {
+		l.readChar()
+	}
+	return l.input[pos:l.readPos]
 }
 
 func newToken(tt token.TokenType, char byte) token.Token {
 	return token.Token{Type: tt, Literal: string(char)}
+}
+
+func isLetter(char byte) bool {
+	return 'a' <= char && char >= 'z' ||
+		'A' <= char && char >= 'Z' ||
+		char == '_'
 }

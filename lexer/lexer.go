@@ -7,10 +7,10 @@ import (
 )
 
 type Lexer struct {
-	input        string // the string to iterate over
-	char         byte   // the char under iteration
-	charIndex    int    // index of char
-	readPosition int    // charIndex + 1
+	input   string // the string to iterate over
+	char    byte   // the char under iteration
+	charPos int    // index of char
+	readPos int    // charIndex + 1
 }
 
 func New(input string) *Lexer {
@@ -31,48 +31,46 @@ func (l Lexer) String() string {
 
 		var start string
 		var end string
-		beginSeg := l.charIndex < winSz
-		endSeg := l.readPosition > len(s)-winSz
+		beginSeg := l.charPos < winSz
+		endSeg := l.readPos > len(s)-winSz
 
 		switch true {
 		// short string
 		case beginSeg && endSeg:
-			start = s[:l.charIndex]
-			end = s[l.readPosition:]
+			start = s[:l.charPos]
+			end = s[l.readPos:]
 		// start
 		case beginSeg && !endSeg:
-			start = s[:l.charIndex]
-			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
+			start = s[:l.charPos]
+			end = fmt.Sprintf("%s…", s[l.readPos:l.readPos+winSz])
 		// middle
 		case !beginSeg && !endSeg:
-			start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
-			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
+			start = fmt.Sprintf("…%s", s[l.charPos-winSz:l.charPos])
+			end = fmt.Sprintf("%s…", s[l.readPos:l.readPos+winSz])
 		// end
 		case !beginSeg && endSeg:
-			start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
-			end = s[l.readPosition:]
+			start = fmt.Sprintf("…%s", s[l.charPos-winSz:l.charPos])
+			end = s[l.readPos:]
 		}
 
 		slidingWindow = fmt.Sprintf("%s[%s]%s",
-			start, string(s[l.charIndex]), end)
+			start, string(s[l.charPos]), end)
 	}
 
 	return fmt.Sprintf(
 		"char=%-6q charIndex=%-6d readPosition=%-6d input=\"%s\"",
-		l.char, l.charIndex, l.readPosition, slidingWindow)
+		l.char, l.charPos, l.readPos, slidingWindow)
 }
 
 func (l *Lexer) readChar() {
-	// fmt.Printf("lexer enter -> %s\n", l)
-	atStrEnd := l.readPosition >= len(l.input)
+	atStrEnd := l.readPos >= len(l.input)
 	if atStrEnd {
 		l.char = 0 // ASCII for "NUL"
 	} else {
-		l.char = l.input[l.readPosition]
+		l.char = l.input[l.readPos]
 	}
-	l.charIndex = l.readPosition
-	l.readPosition += 1
-	fmt.Printf("lexer exit -> %s\n", l)
+	l.charPos = l.readPos
+	l.readPos += 1
 }
 
 func (l *Lexer) NextToken() token.Token {

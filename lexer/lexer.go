@@ -22,7 +22,7 @@ func New(input string) *Lexer {
 
 func (l Lexer) String() string {
 	// input is unweidly to print, so create a sliding window
-	// with a nice "…e's the ⁅c⁆hara…" format
+	// with a nice "…e's the [c]hara…" format
 	var slidingWindow string
 	{
 		s := l.input
@@ -30,25 +30,35 @@ func (l Lexer) String() string {
 		winSz := 10
 
 		var start string
-		if l.charIndex < winSz {
-			start = s[:l.charIndex]
-		} else {
-			start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
-		}
-
 		var end string
-		if l.readPosition > len(s)-winSz {
+		beginSeg := l.charIndex < winSz
+		endSeg := l.readPosition > len(s)-winSz
+
+		switch true {
+		// short string
+		case beginSeg && endSeg:
+			start = s[:l.charIndex]
 			end = s[l.readPosition:]
-		} else {
+		// start
+		case beginSeg && !endSeg:
+			start = s[:l.charIndex]
 			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
+		// middle
+		case !beginSeg && !endSeg:
+			start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
+			end = fmt.Sprintf("%s…", s[l.readPosition:l.readPosition+winSz])
+		// end
+		case !beginSeg && endSeg:
+			start = fmt.Sprintf("…%s", s[l.charIndex-winSz:l.charIndex])
+			end = s[l.readPosition:]
 		}
 
-		slidingWindow = fmt.Sprintf("%s⁅%s⁆%s",
+		slidingWindow = fmt.Sprintf("%s[%s]%s",
 			start, string(s[l.charIndex]), end)
 	}
 
 	return fmt.Sprintf(
-		"char=%-4q charIndex=%-4d readPosistion=%-4d input=\"%s\"",
+		"char=%-6q charIndex=%-6d readPosition=%-6d input=\"%s\"",
 		l.char, l.charIndex, l.readPosition, slidingWindow)
 }
 

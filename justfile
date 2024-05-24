@@ -1,3 +1,3 @@
 
 test:
-    go test {{justfile_directory()}}/...
+    go test '{{ justfile_directory() }}/...'

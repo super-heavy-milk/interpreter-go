@@ -15,7 +15,7 @@ type Parser struct {
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{lex: l}
 
-	// This will initalize both "curToken" and "peekToken"
+	// This will initialize both "curToken" and "peekToken"
 	p.NextToken()
 	p.NextToken()
 

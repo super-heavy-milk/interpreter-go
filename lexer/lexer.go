@@ -21,7 +21,7 @@ func New(input string) *Lexer {
 }
 
 func (l *Lexer) String() string {
-	// input is unweidly to print, so create a sliding window
+	// input is unwieldy to print, so create a sliding window
 	// with a nice "…e's the [c]hara…" format
 	var slidingWindow string
 	{
